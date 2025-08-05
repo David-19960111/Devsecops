@@ -1,0 +1,38 @@
+name: Deploy to EKS
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    name: Helm deploy to EKS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Instalar kubectl y helm
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Configurar acceso a EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name <CLUSTER_NAME>
+
+      - name: Desplegar con Helm
+        run: |
+          helm upgrade --install myapp ./helm/myapp-chart \
+            --set image.repository=${{ secrets.ECR_REPOSITORY }} \
+            --set image.tag=${{ github.sha }}
