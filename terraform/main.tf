@@ -15,6 +15,7 @@ module "vpc" {
   source = "./modules/vpc"
 }
 
+data "aws_availability_zones" "available" {}
 module "eks" {
   source       = "./modules/eks"
   cluster_name = var.cluster_name
@@ -22,6 +23,7 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+  azs = slice(data.aws_availability_zones.available.names, 0, 2)
 }
 
 module "ecr" {

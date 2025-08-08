@@ -13,3 +13,8 @@ variable "vpc_id" {
 variable "subnet_ids" {
   type = list(string)
 }
+
+variable "azs" {
+  type        = list(string)
+  description = "Lista de zonas de disponibilidad a usar para el EKS"
+}
