@@ -1,9 +1,8 @@
 terraform {
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = "6.7.0"
-    }
+      source = "hashicorp/aws"
+    version = "~> 5.0" }
   }
 }
 
@@ -23,7 +22,7 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
-  azs = slice(data.aws_availability_zones.available.names, 0, 2)
+  azs        = slice(data.aws_availability_zones.available.names, 0, 2)
 }
 
 module "ecr" {
